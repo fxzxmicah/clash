@@ -22,7 +22,7 @@ func LoadHosts() *trie.DomainTrie {
 	t := trie.New()
 
 	sc := bufio.NewScanner(f)
-	for sc.Scan() == true {
+	for sc.Scan() {
 		line := strings.TrimSpace(sc.Text())
 
 		// ignore comments
@@ -41,7 +41,7 @@ func LoadHosts() *trie.DomainTrie {
 		namesc := bufio.NewScanner(buf)
 		namesc.Split(bufio.ScanWords)
 		var ip net.IP
-		for namesc.Scan() == true {
+		for namesc.Scan() {
 			name := namesc.Text()
 
 			if ip == nil {

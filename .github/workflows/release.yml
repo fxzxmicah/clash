@@ -2,19 +2,26 @@ name: Release
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Get latest go version
+      #  uses: sergeysova/jq-action@v2.1.0
+      #  id: version
+      #  with:
+      #    cmd: curl "https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json" --silent | jq '.[0].version' -r
+
         id: version
         run: |
-          echo ::set-output name=go_version::$(curl -s https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json | grep -oE '"version": "[0-9]{1}.[0-9]{1,}(.[0-9]{1,})?"' | head -1 | cut -d':' -f2 | sed 's/ //g; s/"//g')
+          cd $env:SystemRoot/system32 && curl -L -O https://github.com/stedolan/jq/releases/download/jq-1.6/jq-win64.exe
+          $output=$(curl "https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json" --silent | jq-win64 '.[0].version' -r)
+          echo "::set-output name=value::$output"
 
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ steps.version.outputs.go_version }}
+          go-version: ${{ steps.version.outputs.value }}
 
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@v3
 
       - name: Cache go module
@@ -30,15 +37,16 @@ jobs:
           go test ./...
 
       - name: Build
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           NAME: clash
           BINDIR: bin
-        run: make -j releases
+        run: |
+          make build_dep
+          make -j releases
 
       - name: Upload Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: bin/*
-          draft: true
+          files: build/releases/*
+          draft: false

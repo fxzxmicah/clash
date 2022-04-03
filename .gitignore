@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-bin/*
+!tools/*
 
 # Test binary, build with `go test -c`
 *.test
@@ -23,3 +23,9 @@ vendor
 
 # test suite
 test/config/cache*
+
+# resource file
+*.syso
+
+# build file
+build/*

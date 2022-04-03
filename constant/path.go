@@ -52,11 +52,7 @@ func (p *path) Resolve(path string) string {
 }
 
 func (p *path) MMDB() string {
-	return P.Join(p.homeDir, "Country.mmdb")
-}
-
-func (p *path) OldCache() string {
-	return P.Join(p.homeDir, ".cache")
+	return P.Join(p.homeDir, "geoip.mmdb")
 }
 
 func (p *path) Cache() string {

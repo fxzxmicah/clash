@@ -6,7 +6,7 @@ GOBUILD=CGO_ENABLED=0 go generate && go build -trimpath -ldflags '-X "github.com
 		-X "github.com/Dreamacro/clash/constant.BuildTime=$(BUILDTIME)" \
 		-w -s -buildid='
 
-LINUX_PLATFORM_LIST = \
+LINUX_ARCH_LIST = \
 	linux-386 \
 	linux-amd64 \
 	linux-armv7 \
@@ -18,7 +18,7 @@ LINUX_PLATFORM_LIST = \
 	linux-mips64 \
 	linux-mips64le
 
-WINDOWS_PLATFORM_LIST = \
+WINDOWS_ARCH_LIST = \
 	windows-386 \
 	windows-amd64 \
 	windows-arm64 \
@@ -71,22 +71,26 @@ windows-arm64:
 windows-arm32v7:
 	GOARCH=arm GOOS=windows GOARM=7 $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
 
-linux_zip_releases=$(addsuffix .zip, $(LINUX_PLATFORM_LIST))
+linux_zip_releases=$(addsuffix .zip, $(LINUX_ARCH_LIST))
 
 $(linux_zip_releases): %.zip : %
 	makecab $(BUILDDIR)/../$(NAME)-$(basename $@) $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).zip
 
-windows_zip_releases=$(addsuffix .zip, $(WINDOWS_PLATFORM_LIST))
+windows_zip_releases=$(addsuffix .zip, $(WINDOWS_ARCH_LIST))
 
 $(windows_zip_releases): %.zip : %
 	makecab $(BUILDDIR)/../$(NAME)-$(basename $@).exe $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).zip
 
-all-arch: $(LINUX_PLATFORM_LIST) $(WINDOWS_PLATFORM_LIST)
+all-arch: $(LINUX_ARCH_LIST) $(WINDOWS_ARCH_LIST)
 
 releases: $(linux_zip_releases) $(windows_zip_releases)
 
 lint:
-	golangci-lint run --disable-all -E govet -E gofumpt -E megacheck ./...
+	GOOS=darwin golangci-lint run ./...
+	GOOS=windows golangci-lint run ./...
+	GOOS=linux golangci-lint run ./...
+	GOOS=freebsd golangci-lint run ./...
+	GOOS=openbsd golangci-lint run ./...
 
 clean:
 	rm $(BUILDDIR)/*

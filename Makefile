@@ -1,6 +1,6 @@
 NAME=clash-core
 BUILDDIR=build/releases
-VERSION=$(shell git describe --tags || echo "unknown version")
+VERSION=$(shell git describe --tags || echo v0.0.0-test)
 BUILDTIME=$(shell date -u)
 GOBUILD=CGO_ENABLED=0 go generate && go build -trimpath -ldflags '-X "github.com/Dreamacro/clash/constant.Version=$(VERSION)" \
 		-X "github.com/Dreamacro/clash/constant.BuildTime=$(BUILDTIME)" \

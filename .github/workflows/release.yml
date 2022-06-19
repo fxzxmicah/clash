@@ -5,16 +5,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Get latest go version
-      #  uses: sergeysova/jq-action@v2.1.0
-      #  id: version
-      #  with:
-      #    cmd: curl "https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json" --silent | jq '.[0].version' -r
-
         id: version
         run: |
-          cd $env:SystemRoot/system32 && curl -L -O https://github.com/stedolan/jq/releases/latest/download/jq-win64.exe
-          $output=$(curl "https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json" --silent | jq-win64 '.[0].version' -r)
-          echo "::set-output name=value::$output"
+          echo "::set-output name=value::$(curl 'https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json' --silent | jq '.[0].version' -r)"
 
       - name: Setup Go
         uses: actions/setup-go@v2

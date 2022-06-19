@@ -12,7 +12,7 @@ jobs:
 
         id: version
         run: |
-          cd $env:SystemRoot/system32 && curl -L -O https://github.com/stedolan/jq/releases/download/jq-1.6/jq-win64.exe
+          cd $env:SystemRoot/system32 && curl -L -O https://github.com/stedolan/jq/releases/latest/download/jq-win64.exe
           $output=$(curl "https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json" --silent | jq-win64 '.[0].version' -r)
           echo "::set-output name=value::$output"
 

@@ -1,6 +1,10 @@
-module github.com/Dreamacro/clash
+module github.com/fxzxmicah/clash-core
 
 go 1.18
+
+require github.com/Dreamacro/clash v1.11.8
+
+replace github.com/Dreamacro/clash => ./
 
 require (
 	github.com/go-chi/chi/v5 v5.0.7

@@ -345,10 +345,10 @@ func NewResolver(config Config) *Resolver {
 	}
 
 	r := &Resolver{
-		ipv6:       config.IPv6,
-		main:       transform(config.Main, defaultResolver),
-		lruCache:   cache.New(cache.WithSize(4096), cache.WithStale(true)),
-		hosts:      config.Hosts,
+		ipv6:     config.IPv6,
+		main:     transform(config.Main, defaultResolver),
+		lruCache: cache.New(cache.WithSize(4096), cache.WithStale(true)),
+		hosts:    config.Hosts,
 	}
 
 	if len(config.Fallback) != 0 {

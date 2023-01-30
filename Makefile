@@ -10,19 +10,20 @@ LINUX_ARCH_LIST = \
 	linux-386 \
 	linux-amd64 \
 	linux-armv7 \
-	linux-armv8 \
+	linux-arm64 \
 	linux-mips-softfloat \
 	linux-mips-hardfloat \
 	linux-mipsle-softfloat \
 	linux-mipsle-hardfloat \
 	linux-mips64 \
-	linux-mips64le
+	linux-mips64le \
+	linux-riscv64
 
 WINDOWS_ARCH_LIST = \
 	windows-386 \
 	windows-amd64 \
 	windows-arm64 \
-	windows-arm32v7
+	windows-armv7
 
 build_dep:
 	go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
@@ -38,7 +39,7 @@ linux-amd64:
 linux-armv7:
 	GOARCH=arm GOOS=linux GOARM=7 $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@
 
-linux-armv8:
+linux-arm64:
 	GOARCH=arm64 GOOS=linux $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@
 
 linux-mips-softfloat:
@@ -59,16 +60,19 @@ linux-mips64:
 linux-mips64le:
 	GOARCH=mips64le GOOS=linux $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@
 
+linux-riscv64:
+	GOARCH=riscv64 GOOS=linux $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@
+
 windows-386:
 	GOARCH=386 GOOS=windows $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
 
 windows-amd64:
-	GOARCH=amd64 GOOS=windows $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
+	GOARCH=amd64 GOOS=windows GOAMD64=v3 $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
 
 windows-arm64:
 	GOARCH=arm64 GOOS=windows $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
 
-windows-arm32v7:
+windows-armv7:
 	GOARCH=arm GOOS=windows GOARM=7 $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
 
 linux_zip_releases=$(addsuffix .zip, $(LINUX_ARCH_LIST))

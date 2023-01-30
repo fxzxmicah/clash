@@ -179,10 +179,6 @@ func newHandler(resolver *Resolver, mapper *ResolverEnhancer) handler {
 		middlewares = append(middlewares, withHosts(resolver.hosts))
 	}
 
-	if resolver.localHosts != nil {
-		middlewares = append(middlewares, withHosts(resolver.localHosts))
-	}
-
 	if mapper.mode == C.DNSFakeIP {
 		middlewares = append(middlewares, withFakeIP(mapper.fakePool))
 	}

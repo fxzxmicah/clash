@@ -23,12 +23,12 @@
         "CompanyName": "",
         "FileDescription": "Clash Core",
         "FileVersion": "",
-        "InternalName": "",
+        "InternalName": "Clash Core",
         "LegalCopyright": "",
         "LegalTrademarks": "",
         "OriginalFilename": "",
         "PrivateBuild": "",
-        "ProductName": "Clash Core",
+        "ProductName": "Clash FOSS",
         "ProductVersion": "",
         "SpecialBuild": ""
     },
@@ -39,5 +39,5 @@
         }
     },
     "IconPath": "",
-    "ManifestPath": ""
+    "ManifestPath": "resource/goversioninfo.exe.manifest"
 }

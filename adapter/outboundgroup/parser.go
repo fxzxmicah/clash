@@ -3,7 +3,6 @@ package outboundgroup
 import (
 	"errors"
 	"fmt"
-	"regexp"
 
 	"github.com/Dreamacro/clash/adapter/outbound"
 	"github.com/Dreamacro/clash/adapter/provider"
@@ -30,7 +29,6 @@ type GroupCommonOption struct {
 	Interval   int      `group:"interval,omitempty"`
 	Lazy       bool     `group:"lazy,omitempty"`
 	DisableUDP bool     `group:"disable-udp,omitempty"`
-	Filter     string   `group:"filter,omitempty"`
 }
 
 func ParseProxyGroup(config map[string]any, proxyMap map[string]C.Proxy, providersMap map[string]types.ProxyProvider) (C.ProxyAdapter, error) {
@@ -47,24 +45,13 @@ func ParseProxyGroup(config map[string]any, proxyMap map[string]C.Proxy, provide
 		return nil, errFormat
 	}
 
-	var (
-		groupName = groupOption.Name
-		filterReg *regexp.Regexp
-	)
+	groupName := groupOption.Name
 
-	if groupOption.Filter != "" {
-		f, err := regexp.Compile(groupOption.Filter)
-		if err != nil {
-			return nil, fmt.Errorf("%s: invalid filter regex: %w", groupName, err)
-		}
-		filterReg = f
-	}
+	providers := []types.ProxyProvider{}
 
 	if len(groupOption.Proxies) == 0 && len(groupOption.Use) == 0 {
 		return nil, fmt.Errorf("%s: %w", groupName, errMissProxy)
 	}
-
-	providers := []types.ProxyProvider{}
 
 	if len(groupOption.Proxies) != 0 {
 		ps, err := getProxies(proxyMap, groupOption.Proxies)
@@ -107,12 +94,7 @@ func ParseProxyGroup(config map[string]any, proxyMap map[string]C.Proxy, provide
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", groupName, err)
 		}
-		if filterReg != nil {
-			pd := provider.NewFilterableProvider(groupName, list, filterReg)
-			providers = append(providers, pd)
-		} else {
-			providers = append(providers, list...)
-		}
+		providers = append(providers, list...)
 	}
 
 	var group C.ProxyAdapter

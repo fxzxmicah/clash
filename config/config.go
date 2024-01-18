@@ -65,6 +65,7 @@ type DNS struct {
 	FallbackFilter    FallbackFilter   `yaml:"fallback-filter"`
 	Listen            string           `yaml:"listen"`
 	EnhancedMode      C.DNSMode        `yaml:"enhanced-mode"`
+	LocalHosts        bool             `yaml:"local-hosts"`
 	DefaultNameserver []dns.NameServer `yaml:"default-nameserver"`
 	FakeIPRange       *fakeip.Pool
 	Hosts             *trie.DomainTrie
@@ -108,6 +109,7 @@ type RawDNS struct {
 	Enable            bool              `yaml:"enable"`
 	IPv6              bool              `yaml:"ipv6"`
 	UseHosts          bool              `yaml:"use-hosts"`
+	LocalHosts        bool              `yaml:"local-hosts"`
 	NameServer        []string          `yaml:"nameserver"`
 	Fallback          []string          `yaml:"fallback"`
 	FallbackFilter    RawFallbackFilter `yaml:"fallback-filter"`
@@ -238,6 +240,7 @@ func UnmarshalRawConfig(buf []byte) (*RawConfig, error) {
 		DNS: RawDNS{
 			Enable:      false,
 			UseHosts:    true,
+			LocalHosts:  false,
 			FakeIPRange: "198.18.0.1/16",
 			FallbackFilter: RawFallbackFilter{
 				GeoIP:     true,
@@ -635,6 +638,7 @@ func parseDNS(rawCfg *RawConfig, hosts *trie.DomainTrie) (*DNS, error) {
 		FallbackFilter: FallbackFilter{
 			IPCIDR: []*net.IPNet{},
 		},
+		LocalHosts: cfg.LocalHosts,
 	}
 	var err error
 	if dnsCfg.NameServer, err = parseNameServer(cfg.NameServer); err != nil {

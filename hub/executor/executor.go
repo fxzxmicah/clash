@@ -133,6 +133,10 @@ func updateDNS(c *config.DNS) {
 		Policy:  c.NameServerPolicy,
 	}
 
+	if c.LocalHosts {
+		cfg.LocalHosts = dns.LoadHosts()
+	}
+
 	r := dns.NewResolver(cfg)
 	m := dns.NewEnhancer(cfg)
 

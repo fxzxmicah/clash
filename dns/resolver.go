@@ -32,6 +32,7 @@ type result struct {
 type Resolver struct {
 	ipv6                  bool
 	hosts                 *trie.DomainTrie
+	localHosts            *trie.DomainTrie
 	main                  []dnsClient
 	fallback              []dnsClient
 	fallbackDomainFilters []fallbackDomainFilter
@@ -335,6 +336,7 @@ type Config struct {
 	FallbackFilter FallbackFilter
 	Pool           *fakeip.Pool
 	Hosts          *trie.DomainTrie
+	LocalHosts     *trie.DomainTrie
 	Policy         map[string]NameServer
 }
 
@@ -345,10 +347,11 @@ func NewResolver(config Config) *Resolver {
 	}
 
 	r := &Resolver{
-		ipv6:     config.IPv6,
-		main:     transform(config.Main, defaultResolver),
-		lruCache: cache.New(cache.WithSize(4096), cache.WithStale(true)),
-		hosts:    config.Hosts,
+		ipv6:       config.IPv6,
+		main:       transform(config.Main, defaultResolver),
+		lruCache:   cache.New(cache.WithSize(4096), cache.WithStale(true)),
+		hosts:      config.Hosts,
+		localHosts: config.LocalHosts,
 	}
 
 	if len(config.Fallback) != 0 {

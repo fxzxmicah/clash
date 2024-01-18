@@ -29,7 +29,7 @@ func withHosts(hosts *trie.DomainTrie) middleware {
 				return next(ctx, r)
 			}
 
-			record := hosts.Search(strings.TrimRight(q.Name, "."))
+			record := hosts.Search(strings.ToLower(strings.TrimRight(q.Name, ".")))
 			if record == nil {
 				return next(ctx, r)
 			}

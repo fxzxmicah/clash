@@ -1,10 +1,16 @@
 linters:
   disable-all: true
   enable:
-    - gofumpt
-    - staticcheck
-    - govet
     - gci
+    - gofumpt
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - staticcheck
+    - unconvert
+    - unused
+    - usestdlibvars
 
 linters-settings:
   gci:
@@ -14,4 +20,4 @@ linters-settings:
       - prefix(github.com/Dreamacro/clash)
       - default
   staticcheck:
-    go: '1.19'
+    go: '1.20'

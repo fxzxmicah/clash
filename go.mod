@@ -2,7 +2,7 @@ module github.com/fxzxmicah/clash-core
 
 go 1.20
 
-require github.com/Dreamacro/clash v1.11.8
+require github.com/Dreamacro/clash v1.15.0
 
 replace github.com/Dreamacro/clash => ./
 

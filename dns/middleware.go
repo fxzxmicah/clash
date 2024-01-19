@@ -34,31 +34,33 @@ func withHosts(hosts *trie.DomainTrie) middleware {
 				return next(ctx, r)
 			}
 
-			ip := record.Data.(net.IP)
 			msg := r.Copy()
+			for _, data := range record.Data.([]net.IP) {
+				if v4 := data.To4(); v4 != nil && q.Qtype == D.TypeA {
+					rr := &D.A{}
+					rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeA, Class: D.ClassINET, Ttl: 10}
+					rr.A = v4
 
-			if v4 := ip.To4(); v4 != nil && q.Qtype == D.TypeA {
-				rr := &D.A{}
-				rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeA, Class: D.ClassINET, Ttl: dnsDefaultTTL}
-				rr.A = v4
+					msg.Answer = append(msg.Answer, rr)
+				} else if v6 := data.To16(); v6 != nil && q.Qtype == D.TypeAAAA {
+					rr := &D.AAAA{}
+					rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeAAAA, Class: D.ClassINET, Ttl: 10}
+					rr.AAAA = v6
 
-				msg.Answer = []D.RR{rr}
-			} else if v6 := ip.To16(); v6 != nil && q.Qtype == D.TypeAAAA {
-				rr := &D.AAAA{}
-				rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeAAAA, Class: D.ClassINET, Ttl: dnsDefaultTTL}
-				rr.AAAA = v6
-
-				msg.Answer = []D.RR{rr}
-			} else {
-				return next(ctx, r)
+					msg.Answer = append(msg.Answer, rr)
+				}
 			}
 
-			ctx.SetType(context.DNSTypeHost)
-			msg.SetRcode(r, D.RcodeSuccess)
-			msg.Authoritative = true
-			msg.RecursionAvailable = true
+			if len(msg.Answer) > 0 {
+				ctx.SetType(context.DNSTypeHost)
+				msg.SetRcode(r, D.RcodeSuccess)
+				msg.Authoritative = true
+				msg.RecursionAvailable = true
 
-			return msg, nil
+				return msg, nil
+			}
+
+			return next(ctx, r)
 		}
 	}
 }

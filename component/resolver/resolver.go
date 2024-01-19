@@ -48,7 +48,7 @@ type Resolver interface {
 // LookupIPv4 with a host, return ipv4 list
 func LookupIPv4(ctx context.Context, host string) ([]net.IP, error) {
 	if node := DefaultHosts.Search(host); node != nil {
-		if ip := node.Data.(net.IP).To4(); ip != nil {
+		if ip := node.Data.([]net.IP)[0].To4(); ip != nil {
 			return []net.IP{ip}, nil
 		}
 	}
@@ -95,7 +95,7 @@ func LookupIPv6(ctx context.Context, host string) ([]net.IP, error) {
 	}
 
 	if node := DefaultHosts.Search(host); node != nil {
-		if ip := node.Data.(net.IP).To16(); ip != nil {
+		if ip := node.Data.([]net.IP)[0].To16(); ip != nil {
 			return []net.IP{ip}, nil
 		}
 	}
@@ -138,7 +138,7 @@ func ResolveIPv6(host string) (net.IP, error) {
 // LookupIPWithResolver same as ResolveIP, but with a resolver
 func LookupIPWithResolver(ctx context.Context, host string, r Resolver) ([]net.IP, error) {
 	if node := DefaultHosts.Search(host); node != nil {
-		return []net.IP{node.Data.(net.IP)}, nil
+		return []net.IP{node.Data.([]net.IP)[0]}, nil
 	}
 
 	if r != nil {

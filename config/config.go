@@ -514,7 +514,7 @@ func parseHosts(cfg *RawConfig) (*trie.DomainTrie, error) {
 			if ip == nil {
 				return nil, fmt.Errorf("%s is not a valid IP", ipStr)
 			}
-			tree.Insert(strings.ToLower(domain), ip)
+			tree.Insert(strings.ToLower(domain), []net.IP{ip})
 		}
 	}
 

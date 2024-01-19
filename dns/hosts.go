@@ -20,6 +20,7 @@ func LoadHosts() *trie.DomainTrie {
 	}
 
 	t := trie.New()
+	h := map[string][]net.IP{}
 
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
@@ -52,25 +53,22 @@ func LoadHosts() *trie.DomainTrie {
 				continue
 			}
 
-			t.Insert(strings.ToLower(name), ip)
+			h[name] = append(h[name], ip)
 		}
 	}
 
+	for name, ips := range h {
+		t.Insert(strings.ToLower(name), ips)
+	}
+
+	defer f.Close()
 	return t
 }
 
 func hostsPath() string {
 	switch runtime.GOOS {
 	case "windows":
-		var sysRoot string
-		for _, e := range os.Environ() {
-			subs := strings.SplitN(e, "=", 2)
-			if subs[0] == "SystemRoot" && len(subs) == 2 {
-				sysRoot = subs[1]
-				break
-			}
-		}
-		return path.Join(sysRoot, "\\System32\\drivers\\etc\\hosts")
+		return path.Join(os.Getenv("SYSTEMROOT"), "\\System32\\drivers\\etc\\hosts")
 	default:
 		return "/etc/hosts"
 	}

@@ -8,7 +8,6 @@ import (
 	"path"
 	"runtime"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/Dreamacro/clash/component/trie"
 )
@@ -18,9 +17,11 @@ func LoadHosts() *trie.DomainTrie {
 	if err != nil {
 		return nil
 	}
+	defer f.Close()
 
 	t := trie.New()
 	h := map[string][]net.IP{}
+	p := map[string][]string{}
 
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
@@ -32,10 +33,8 @@ func LoadHosts() *trie.DomainTrie {
 		}
 
 		// ignore records with non-ascii character
-		for i := 0; i < len(line); i++ {
-			if line[i] >= utf8.RuneSelf {
-				continue
-			}
+		if containNonASCII(line) {
+			continue
 		}
 
 		buf := bytes.NewBuffer([]byte(line))
@@ -54,6 +53,8 @@ func LoadHosts() *trie.DomainTrie {
 			}
 
 			h[name] = append(h[name], ip)
+			ptr := IPtoPTR(ip)
+			p[ptr] = append(p[ptr], name+".")
 		}
 	}
 
@@ -61,7 +62,10 @@ func LoadHosts() *trie.DomainTrie {
 		t.Insert(strings.ToLower(name), ips)
 	}
 
-	defer f.Close()
+	for ptr, names := range p {
+		t.Insert(ptr, names)
+	}
+
 	return t
 }
 

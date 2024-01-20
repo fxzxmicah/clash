@@ -25,7 +25,7 @@ func withHosts(hosts *trie.DomainTrie) middleware {
 		return func(ctx *context.DNSContext, r *D.Msg) (*D.Msg, error) {
 			q := r.Question[0]
 
-			if !isIPRequest(q) {
+			if !isIPorPTRRequest(q) {
 				return next(ctx, r)
 			}
 
@@ -35,19 +35,32 @@ func withHosts(hosts *trie.DomainTrie) middleware {
 			}
 
 			msg := r.Copy()
-			for _, data := range record.Data.([]net.IP) {
-				if v4 := data.To4(); v4 != nil && q.Qtype == D.TypeA {
-					rr := &D.A{}
-					rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeA, Class: D.ClassINET, Ttl: 10}
-					rr.A = v4
+			switch data := record.Data.(type) {
+			case []net.IP:
+				for _, ip := range data {
+					if v4 := ip.To4(); v4 != nil && q.Qtype == D.TypeA {
+						rr := &D.A{}
+						rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeA, Class: D.ClassINET, Ttl: 60}
+						rr.A = v4
 
-					msg.Answer = append(msg.Answer, rr)
-				} else if v6 := data.To16(); v6 != nil && q.Qtype == D.TypeAAAA {
-					rr := &D.AAAA{}
-					rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeAAAA, Class: D.ClassINET, Ttl: 10}
-					rr.AAAA = v6
+						msg.Answer = append(msg.Answer, rr)
+					} else if v6 := ip.To16(); v6 != nil && q.Qtype == D.TypeAAAA {
+						rr := &D.AAAA{}
+						rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeAAAA, Class: D.ClassINET, Ttl: 60}
+						rr.AAAA = v6
 
-					msg.Answer = append(msg.Answer, rr)
+						msg.Answer = append(msg.Answer, rr)
+					}
+				}
+			case []string:
+				for _, ptr := range data {
+					if q.Qtype == D.TypePTR {
+						rr := &D.PTR{}
+						rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypePTR, Class: D.ClassINET, Ttl: 60}
+						rr.Ptr = ptr
+
+						msg.Answer = append(msg.Answer, rr)
+					}
 				}
 			}
 
@@ -177,12 +190,12 @@ func compose(middlewares []middleware, endpoint handler) handler {
 func newHandler(resolver *Resolver, mapper *ResolverEnhancer) handler {
 	middlewares := []middleware{}
 
-	if resolver.hosts != nil {
-		middlewares = append(middlewares, withHosts(resolver.hosts))
-	}
-
 	if resolver.localHosts != nil {
 		middlewares = append(middlewares, withHosts(resolver.localHosts))
+	}
+
+	if resolver.hosts != nil {
+		middlewares = append(middlewares, withHosts(resolver.hosts))
 	}
 
 	if mapper.mode == C.DNSFakeIP {

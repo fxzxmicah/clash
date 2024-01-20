@@ -8,6 +8,7 @@ import (
 	"net"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Dreamacro/clash/common/cache"
 	"github.com/Dreamacro/clash/common/picker"
@@ -55,6 +56,10 @@ func setMsgTTL(msg *D.Msg, ttl uint32) {
 
 func isIPRequest(q D.Question) bool {
 	return q.Qclass == D.ClassINET && (q.Qtype == D.TypeA || q.Qtype == D.TypeAAAA)
+}
+
+func isIPorPTRRequest(q D.Question) bool {
+	return q.Qclass == D.ClassINET && (q.Qtype == D.TypeA || q.Qtype == D.TypeAAAA || q.Qtype == D.TypePTR)
 }
 
 func transform(servers []NameServer, resolver *Resolver) []dnsClient {
@@ -140,4 +145,28 @@ func batchExchange(ctx context.Context, clients []dnsClient, m *D.Msg) (msg *D.M
 
 	msg = elm.(*D.Msg)
 	return
+}
+
+func containNonASCII(s string) bool {
+	for _, c := range s {
+		if c >= utf8.RuneSelf {
+			return true
+		}
+	}
+	return false
+}
+
+func IPtoPTR(ip net.IP) string {
+	if v4 := ip.To4(); v4 != nil {
+		// IPv4
+		return fmt.Sprintf("%d.%d.%d.%d.in-addr.arpa", v4[3], v4[2], v4[1], v4[0])
+	} else {
+		// IPv6
+		ptr := make([]string, len(ip)*2)
+		for i := 0; i < len(ip); i++ {
+			ptr[i*2] = fmt.Sprintf("%x", ip[len(ip)-i-1]&0xF)
+			ptr[i*2+1] = fmt.Sprintf("%x", ip[len(ip)-i-1]>>4)
+		}
+		return strings.Join(ptr, ".") + ".ip6.arpa"
+	}
 }

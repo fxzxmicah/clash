@@ -75,19 +75,19 @@ windows-arm64:
 windows-armv7:
 	GOARCH=arm GOOS=windows GOARM=7 $(GOBUILD) -o $(BUILDDIR)/../$(NAME)-$@.exe
 
-linux_zip_releases=$(addsuffix .zip, $(LINUX_ARCH_LIST))
+linux_tar_releases=$(addsuffix .tar.gz, $(LINUX_ARCH_LIST))
 
-$(linux_zip_releases): %.zip : %
-	makecab $(BUILDDIR)/../$(NAME)-$(basename $@) $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).zip
+$(linux_tar_releases): %.tar.gz : %
+	tar -czf $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).tar.gz $(BUILDDIR)/../$(NAME)-$(basename $@)
 
-windows_zip_releases=$(addsuffix .zip, $(WINDOWS_ARCH_LIST))
+windows_cab_releases=$(addsuffix .cab, $(WINDOWS_ARCH_LIST))
 
-$(windows_zip_releases): %.zip : %
-	makecab $(BUILDDIR)/../$(NAME)-$(basename $@).exe $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).zip
+$(windows_cab_releases): %.cab : %
+	makecab $(BUILDDIR)/../$(NAME)-$(basename $@).exe $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).cab
 
 all-arch: $(LINUX_ARCH_LIST) $(WINDOWS_ARCH_LIST)
 
-releases: $(linux_zip_releases) $(windows_zip_releases)
+releases: $(linux_tar_releases) $(windows_cab_releases)
 
 LINT_OS_LIST := windows linux
 

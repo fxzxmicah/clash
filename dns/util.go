@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -159,14 +160,25 @@ func containNonASCII(s string) bool {
 func IPtoPTR(ip net.IP) string {
 	if v4 := ip.To4(); v4 != nil {
 		// IPv4
-		return fmt.Sprintf("%d.%d.%d.%d.in-addr.arpa", v4[3], v4[2], v4[1], v4[0])
-	} else {
-		// IPv6
-		ptr := make([]string, len(ip)*2)
-		for i := 0; i < len(ip); i++ {
-			ptr[i*2] = fmt.Sprintf("%x", ip[len(ip)-i-1]&0xF)
-			ptr[i*2+1] = fmt.Sprintf("%x", ip[len(ip)-i-1]>>4)
+		ptr := make([]string, len(v4))
+
+		for i := 0; i < len(v4); i++ {
+			ptr[i] = strconv.Itoa(int(v4[len(v4)-i-1]))
 		}
+
+		return strings.Join(ptr, ".") + ".in-addr.arpa"
+	} else if v6 := ip.To16(); v6 != nil {
+		// IPv6
+		ptr := make([]string, len(v6)*2)
+
+		for i := 0; i < len(v6); i++ {
+			ptr[i*2] = strconv.FormatInt(int64(v6[len(v6)-i-1]&0xF), 16)
+			ptr[i*2+1] = strconv.FormatInt(int64(v6[len(v6)-i-1]>>4), 16)
+		}
+
 		return strings.Join(ptr, ".") + ".ip6.arpa"
+	} else {
+		log.Debugln("[DNS] PTR conversion failed because of non-IP for: %s", ip)
+		return ""
 	}
 }

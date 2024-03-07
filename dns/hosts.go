@@ -37,10 +37,12 @@ func LoadHosts() *trie.DomainTrie {
 			continue
 		}
 
+		var ip net.IP
+		var ptr string
+
 		buf := bytes.NewBuffer([]byte(line))
 		namesc := bufio.NewScanner(buf)
 		namesc.Split(bufio.ScanWords)
-		var ip net.IP
 		for namesc.Scan() {
 			name := namesc.Text()
 
@@ -48,13 +50,13 @@ func LoadHosts() *trie.DomainTrie {
 				ip = net.ParseIP(name)
 				if ip == nil {
 					break
+				} else {
+					ptr = IPtoPTR(ip)
 				}
-				continue
+			} else {
+				h[name] = append(h[name], ip)
+				p[ptr] = append(p[ptr], name+".")
 			}
-
-			h[name] = append(h[name], ip)
-			ptr := IPtoPTR(ip)
-			p[ptr] = append(p[ptr], name+".")
 		}
 	}
 

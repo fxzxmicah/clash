@@ -78,7 +78,7 @@ windows-armv7:
 linux_tar_releases=$(addsuffix .tar.gz, $(LINUX_ARCH_LIST))
 
 $(linux_tar_releases): %.tar.gz : %
-	tar -czf $(BUILDDIR)/$(NAME)-$(basename $@)-$(VERSION).tar.gz $(BUILDDIR)/../$(NAME)-$(basename $@)
+	tar -c -z -f $(BUILDDIR)/$(NAME)-$(patsubst %.tar.gz,%,$@)-$(VERSION).tar.gz -C $(BUILDDIR)/../ $(NAME)-$(patsubst %.tar.gz,%,$@)
 
 windows_cab_releases=$(addsuffix .cab, $(WINDOWS_ARCH_LIST))
 

@@ -1,6 +1,6 @@
 module github.com/fxzxmicah/clash-core
 
-go 1.20
+go 1.21
 
 require github.com/Dreamacro/clash v1.15.0
 

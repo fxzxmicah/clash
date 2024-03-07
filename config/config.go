@@ -567,8 +567,8 @@ func parseNameServer(servers []string) ([]dns.NameServer, error) {
 			addr, err = hostWithDefaultPort(u.Host, "853")
 			dnsNetType = "tcp-tls" // DNS over TLS
 		case "https":
-			clearURL := url.URL{Scheme: "https", Host: u.Host, Path: u.Path}
-			addr = clearURL.String()
+			addrURL := url.URL{Scheme: "https", Host: u.Host, Path: u.Path}
+			addr = addrURL.String()
 			dnsNetType = "https" // DNS over HTTPS
 		case "dhcp":
 			addr = u.Host

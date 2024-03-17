@@ -51,7 +51,7 @@ func LoadHosts() *trie.DomainTrie {
 				if ip == nil {
 					break
 				} else {
-					ptr = IPtoPTR(ip)
+					ptr = transIpToPtr(ip)
 				}
 			} else {
 				h[name] = append(h[name], ip)

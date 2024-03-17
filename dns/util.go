@@ -157,7 +157,7 @@ func containNonASCII(s string) bool {
 	return false
 }
 
-func IPtoPTR(ip net.IP) string {
+func transIpToPtr(ip net.IP) string {
 	if v4 := ip.To4(); v4 != nil {
 		// IPv4
 		ptr := make([]string, len(v4))

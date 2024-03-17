@@ -2,7 +2,6 @@ package dns
 
 import (
 	"bufio"
-	"bytes"
 	"net"
 	"os"
 	"path"
@@ -37,26 +36,22 @@ func LoadHosts() *trie.DomainTrie {
 			continue
 		}
 
-		var ip net.IP
-		var ptr string
+		name := strings.Fields(line)
+		// ignore blank lines
+		if len(name) == 0 {
+			continue
+		}
 
-		buf := bytes.NewBuffer([]byte(line))
-		namesc := bufio.NewScanner(buf)
-		namesc.Split(bufio.ScanWords)
-		for namesc.Scan() {
-			name := namesc.Text()
+		ip := net.ParseIP(name[0])
+		// ignore lines that do not start with IP
+		if ip == nil {
+			continue
+		}
 
-			if ip == nil {
-				ip = net.ParseIP(name)
-				if ip == nil {
-					break
-				} else {
-					ptr = transIpToPtr(ip)
-				}
-			} else {
-				h[name] = append(h[name], ip)
-				p[ptr] = append(p[ptr], name+".")
-			}
+		ptr := transIpToPtr(ip)
+		for _, name := range name[1:] {
+			h[name] = append(h[name], ip)
+			p[ptr] = append(p[ptr], name+".")
 		}
 	}
 

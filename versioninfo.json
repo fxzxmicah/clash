@@ -1,7 +1,7 @@
 {
     "FixedFileInfo": {
         "FileVersion": {
-            "Major": 0,
+            "Major": 1,
             "Minor": 0,
             "Patch": 0,
             "Build": 0
@@ -22,14 +22,14 @@
         "Comments": "",
         "CompanyName": "",
         "FileDescription": "Clash Core",
-        "FileVersion": "",
-        "InternalName": "Clash Core",
+        "FileVersion": "1.0.0.0",
+        "InternalName": "",
         "LegalCopyright": "",
         "LegalTrademarks": "",
         "OriginalFilename": "",
         "PrivateBuild": "",
-        "ProductName": "Clash FOSS",
-        "ProductVersion": "",
+        "ProductName": "Clash Components",
+        "ProductVersion": "0.0.0.0",
         "SpecialBuild": ""
     },
     "VarFileInfo": {

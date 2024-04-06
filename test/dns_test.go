@@ -47,6 +47,22 @@ dns:
 	rr, err = exchange("127.0.0.1:8553", "2606-4700-4700--1111.sslip.io", dns.TypeAAAA)
 	assert.NoError(t, err)
 	assert.Empty(t, rr)
+
+	rr, err := exchange("127.0.0.1:8553", "127.0.0.1", dns.TypePTR)
+	assert.NoError(t, err)
+	assert.Empty(t, rr)
+
+	rr, err = exchange("127.0.0.1:8553", "::1", dns.TypePTR)
+	assert.NoError(t, err)
+	assert.Empty(t, rr)
+
+	rr, err := exchange("127.0.0.1:8553", "1.0.0.127.in-addr.arpa", dns.TypeA)
+	assert.NoError(t, err)
+	assert.Empty(t, rr)
+
+	rr, err = exchange("127.0.0.1:8553", "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa", dns.TypeAAAA)
+	assert.NoError(t, err)
+	assert.Empty(t, rr)
 }
 
 func TestClash_DNSHostAndFakeIP(t *testing.T) {

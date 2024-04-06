@@ -36,20 +36,20 @@ func LoadHosts() *trie.DomainTrie {
 			continue
 		}
 
-		name := strings.Fields(line)
+		names := strings.Fields(line)
 		// ignore blank lines
-		if len(name) == 0 {
+		if len(names) == 0 {
 			continue
 		}
 
-		ip := net.ParseIP(name[0])
+		ip := net.ParseIP(names[0])
 		// ignore lines that do not start with IP
 		if ip == nil {
 			continue
 		}
 
 		ptr := transIpToPtr(ip)
-		for _, name := range name[1:] {
+		for _, name := range names[1:] {
 			h[name] = append(h[name], ip)
 			p[ptr] = append(p[ptr], name+".")
 		}

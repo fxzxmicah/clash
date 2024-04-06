@@ -38,28 +38,36 @@ func withHosts(hosts *trie.DomainTrie) middleware {
 			switch data := record.Data.(type) {
 			case []net.IP:
 				for _, ip := range data {
-					if v4 := ip.To4(); v4 != nil && q.Qtype == D.TypeA {
-						rr := &D.A{}
-						rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeA, Class: D.ClassINET, Ttl: 60}
-						rr.A = v4
+					switch q.Qtype {
+					case D.TypeA:
+						if v4 := ip.To4(); v4 != nil {
+							rr := &D.A{}
+							rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeA, Class: D.ClassINET, Ttl: 60}
+							rr.A = v4
 
-						msg.Answer = append(msg.Answer, rr)
-					} else if v6 := ip.To16(); v6 != nil && q.Qtype == D.TypeAAAA {
-						rr := &D.AAAA{}
-						rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeAAAA, Class: D.ClassINET, Ttl: 60}
-						rr.AAAA = v6
+							msg.Answer = append(msg.Answer, rr)
+						}
+					case D.TypeAAAA:
+						if v6 := ip.To16(); v6 != nil {
+							rr := &D.AAAA{}
+							rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypeAAAA, Class: D.ClassINET, Ttl: 60}
+							rr.AAAA = v6
 
-						msg.Answer = append(msg.Answer, rr)
+							msg.Answer = append(msg.Answer, rr)
+						}
 					}
 				}
 			case []string:
 				for _, ptr := range data {
-					if q.Qtype == D.TypePTR {
+					switch q.Qtype {
+					case D.TypePTR:
 						rr := &D.PTR{}
 						rr.Hdr = D.RR_Header{Name: q.Name, Rrtype: D.TypePTR, Class: D.ClassINET, Ttl: 60}
 						rr.Ptr = ptr
 
 						msg.Answer = append(msg.Answer, rr)
+					default:
+						return handleMsgWithEmptyAnswer(r), nil
 					}
 				}
 			}
